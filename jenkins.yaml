@@ -5,7 +5,6 @@
     - name: update apt package index
       ansible.builtin.apt:
         update_cache: yes
-
     - name: install Java (Jenkins dependency)
       ansible.builtin.apt:
         name: openjdk-11-jdk
