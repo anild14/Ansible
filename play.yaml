@@ -19,7 +19,7 @@
     - name: copy the info.php file
       ansible.builtin.copy:
         src: info.php
-        dest: /var/www/html/info.php
+        dest: /var/www/html/index.html
     - name: restart apache
       ansible.builtin.systemd:
         name: apache2
