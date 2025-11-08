@@ -1,4 +1,3 @@
----
 - name: install jenkins on ubuntu
   hosts: all
   become: yes
@@ -14,12 +13,12 @@
 
     - name: add Jenkins GPG key
       ansible.builtin.apt_key:
-        url: https://pkg.jenkins.io/debian/jenkins.io.key
+        url: https://pkg.jenkins.io/debian/jenkins.io-2023.key
         state: present
 
     - name: add Jenkins repository
       ansible.builtin.apt_repository:
-        repo: deb http://pkg.jenkins.io/debian-stable binary/
+        repo: "deb https://pkg.jenkins.io/debian-stable binary/"
         state: present
 
     - name: update apt package index after adding Jenkins repo
