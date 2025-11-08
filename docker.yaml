@@ -1,36 +1,42 @@
 ---
-- name: Ensure Docker is installed
+- name: install docker on ubuntu
   hosts: all
   become: yes
   tasks:
-    - name: Install required packages
-      apt:
+    - name: update apt package index
+      ansible.builtin.apt:
+        update_cache: yes
+
+    - name: install required packages
+      ansible.builtin.apt:
         name:
           - apt-transport-https
           - ca-certificates
           - curl
           - software-properties-common
         state: present
-        update_cache: yes
 
-    - name: Add Docker GPG key
-      apt_key:
+    - name: add Docker's official GPG key
+      ansible.builtin.apt_key:
         url: https://download.docker.com/linux/ubuntu/gpg
         state: present
 
-    - name: Add Docker repository
-      apt_repository:
-        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable
+    - name: add Docker repository
+      ansible.builtin.apt_repository:
+        repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable
         state: present
 
-    - name: Install Docker
-      apt:
-        name: docker-ce
-        state: present
+    - name: update apt package index after adding Docker repo
+      ansible.builtin.apt:
         update_cache: yes
 
-    - name: Ensure Docker service is running
-      service:
+    - name: install Docker CE
+      ansible.builtin.apt:
+        name: docker-ce
+        state: present
+
+    - name: ensure Docker service is running
+      ansible.builtin.systemd:
         name: docker
-        state: started
         enabled: yes
+        state: started
