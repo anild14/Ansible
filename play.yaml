@@ -4,16 +4,16 @@
   become: yes
   tasks:
     - name: install apache server
-      ansible.builtin.yum:
-        name: httpd
+      ansible.builtin.apt:
+        name: apache2
         state: present
     - name: enable and start apache
       ansible.builtin.systemd:
-        name: httpd
+        name: apache2
         enabled: yes
         state: started
-    - name: install apache server
-      ansible.builtin.yum:
+    - name: install php
+      ansible.builtin.apt:
         name: php
         state: present
     - name: copy the info.php file
@@ -22,5 +22,5 @@
         dest: /var/www/html/info.php
     - name: restart apache
       ansible.builtin.systemd:
-        name: httpd
+        name: apache2
         state: restarted
