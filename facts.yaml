@@ -22,3 +22,9 @@
     - name: print ansble hostname
       debug:
         msg: "The hostname is {{ ansible_facts['hostname'] }}"
+    - name: print ansible variables
+      debug:
+        var: ansible_facts
+    - name: print ansible all variables
+      debug:
+        var: hostvars[inventory_hostname]
