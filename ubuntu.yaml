@@ -1,18 +1,15 @@
 ---
-- name: install tomcat server on ubuntu
-  hosts: ubuntu
-  become: yes
+- name: install tomcat
+  hosts: tomcat
   tasks:
-    - name: update packages and install tomcat
+    - name: check if the playbook is being executed on supported os
+      ansible.builtin.fail:
+        msg: "This playbook is designed to work on ubuntu only"
+      when: ansible_facts['distribution'] != "Ubuntu" 
+    - name: install java
       ansible.builtin.apt:
-        name: tomcat9
+        name: "{{ java_package }}"
         update_cache: yes
         state: present
-    - name: enable and start tomcat service
-      ansible.builtin.systemd:
-        name: tomcat9
-        enabled: yes
-        state: started
-    - name: debug tomcat installation
-      ansible.builtin.debug:
-        msg: "Tomcat server installed and started successfully"
+    
+      
