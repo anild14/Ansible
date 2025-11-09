@@ -19,9 +19,6 @@
     - name: print ansible CPU info
       debug:
         msg: "The CPU model is {{ ansible_facts['processor'][1] }} with {{ ansible_facts['processor_cores'] }} cores"
-    - name: print ansible disk info
+    - name: print ansble hostname
       debug:
-        msg: "The disk size is {{ ansible_facts['devices']['sda']['size'] }}" 
-    - name: print ansible uptime
-      debug:
-        msg: "The system uptime is {{ ansible_facts['uptime_seconds'] }} seconds"
+        msg: "The hostname is {{ ansible_facts['hostname'] }}"
