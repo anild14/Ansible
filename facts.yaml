@@ -7,3 +7,15 @@
       copy:
         content: "{{ ansible_facts | to_nice_yaml }}"
         dest: "./facts_{{ inventory_hostname }}.yaml"
+    - name: print ansible distribution
+      debug:
+        msg: "The distribution is {{ ansible_facts['distribution'] }} version {{ ansible_facts['distribution_version'] }}"      
+    - name: print ansible IP address
+      debug:
+        msg: "The IP address is {{ ansible_facts['default_ipv4']['address'] }}"    
+    - name: print ansible memory info
+      debug:
+        msg: "The total memory is {{ ansible_facts['memtotal_mb'] }} MB"
+    - name: print ansible CPU info
+      debug:
+        msg: "The CPU model is {{ ansible_facts['processor'][1] }} with {{ ansible_facts['processor_cores'] }} cores"
