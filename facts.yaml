@@ -28,3 +28,6 @@
     - name: print ansible all variables
       debug:
         var: hostvars[inventory_hostname]
+    - name: print specific ansible variable
+      debug:
+        var: ansible_facts['os_family']
