@@ -2,6 +2,8 @@
 - name: install tomcat
   hosts: all
   become: yes
+  vars:
+    java_package: openjdk-11-jdk
   tasks:
     - name: check if the playbook is being executed on supported os
       ansible.builtin.fail:
