@@ -1,0 +1,9 @@
+---
+- name: exploring ansible facts
+  hosts: all
+  gather_facts: yes
+  tasks:
+    - name: save ansible facts to a file
+      copy:
+        content: "{{ ansible_facts | to_nice_yaml }}"
+        dest: "./facts_{{ inventory_hostname }}.yaml"
