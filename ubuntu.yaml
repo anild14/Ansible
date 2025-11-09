@@ -1,0 +1,18 @@
+---
+- name: install tomcat server on ubuntu
+  hosts: ubuntu
+  become: yes
+  tasks:
+    - name: update packages and install tomcat
+      ansible.builtin.apt:
+        name: tomcat9
+        update_cache: yes
+        state: present
+    - name: enable and start tomcat service
+      ansible.builtin.systemd:
+        name: tomcat9
+        enabled: yes
+        state: started
+    - name: debug tomcat installation
+      ansible.builtin.debug:
+        msg: "Tomcat server installed and started successfully"
