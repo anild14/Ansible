@@ -36,7 +36,7 @@
       systemd:
         name: tomcat9
         state: restarted
-      handler: Restart Tomcat
+      notify: Restart Tomcat
   handlers:
     - name: Restart Tomcat
       systemd:
