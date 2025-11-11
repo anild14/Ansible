@@ -1,6 +1,6 @@
 ---
 - name: install tomcat
-  hosts: tomcat
+  hosts: all
   become: yes
   tasks:
     - name: check if the playbook is being executed on supported os
