@@ -36,4 +36,28 @@
       systemd:
         name: tomcat9
         state: restarted
-      
+      handler: Restart Tomcat
+  handlers:
+    - name: Restart Tomcat
+      systemd:
+        name: tomcat9
+        state: restarted
+
+    - name: Ensure firewall allows HTTP traffic
+      ufw:
+        rule: allow
+        port: '80'
+        proto: tcp
+        state: enabled
+    - name: Ensure firewall allows HTTPS traffic
+      ufw:
+        rule: allow
+        port: '443'
+        proto: tcp
+        state: enabled
+    - name: Ensure firewall allows Tomcat traffic
+      ufw:
+        rule: allow
+        port: '8080'
+        proto: tcp
+        state: enabled    
