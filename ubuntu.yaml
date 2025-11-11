@@ -1,65 +1,39 @@
 ---
-- name: install tomcat
-  hosts: ubuntu
+- name: install tomcat and deploy sample app
+  hosts: all
   become: yes
+
   tasks:
-    - name: check if the playbook is being executed on supported os
-      ansible.builtin.fail:
-        msg: "This playbook is designed to work on ubuntu only"
-      when: ansible_facts['distribution'] != "Ubuntu" 
-    - name: install java
-      ansible.builtin.apt:
-        name: "{{ java_package }}"
+    - name: Update apt cache
+      apt:
         update_cache: yes
+
+    - name: Install OpenJDK 11
+      apt:
+        name: openjdk-11-jdk
         state: present
-    - name: create group
-      ansible.builtin.group:
-        name: "{{ group }}"
+
+    - name: Install Tomcat 9
+      apt:
+        name: tomcat9
         state: present
-    - name: create user
-      ansible.builtin.user:
-        name: "{{ user }}"
-        create_home: yes
-        home: "{{ homedir }}"
-        shell: "{{ shell }}"
-        group: "{{ group }}"
-    - name: download tomcat
-      ansible.builtin.get_url:
-        url: "https://www-eu.apache.org/dist/tomcat/tomcat-{{ tomcat_major_version }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
-        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
-    - name: extract tomcat
-      ansible.builtin.unarchive:
-        src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
-        dest: "{{ homedir }}"
-        remote_src: yes
-    - name: create a symlink
-      ansible.builtin.file:
-        src: "{{ homedir }}/apache-tomcat-{{ tomcat_version }}"
-        dest: "{{ homedir }}/latest"
-        state: link
-    - name: Recursively change ownership of a directory
-      ansible.builtin.file:
-        path: "{{ homedir }}"
-        state: directory
-        recurse: yes
-        owner: "{{ user }}"
-        group: "{{ group }}"
-    - name: Add execute permissions for shell scripts
-      ansible.builtin.shell:
-        cmd: "chmod +x {{ homedir }}/latest/bin/*.sh"
-    - name: copy the service file
-      ansible.builtin.template:
-        src: tomcat.service.j2
-        dest: /etc/systemd/system/tomcat.service
-      notify:
-        - reload daemon
-    - name: ensure tomcat is enable and runing
-      ansible.builtin.systemd:
-        name: tomcat
-        enabled: yes
+
+    - name: Start and enable Tomcat service
+      systemd:
+        name: tomcat9
         state: started
-  handlers:
-    - name: reload daemon
-      ansible.builtin.systemd:
-        daemon_reload: yes
+        enabled: yes
+
+    - name: Deploy sample web application
+      copy:
+        src: /path/to/sample.war
+        dest: /var/lib/tomcat9/webapps/sample.war
+        owner: tomcat
+        group: tomcat
+        mode: '0644'
+
+    - name: Restart Tomcat to deploy the application
+      systemd:
+        name: tomcat9
+        state: restarted
       
