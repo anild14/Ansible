@@ -8,6 +8,14 @@
         msg: "This playbook is designed to work on ubuntu only"
       when: ansible_facts['distribution'] != "Ubuntu" 
     - name: install java
+      vars:
+        java_package: "{{ 'openjdk-11-jdk' if ansible_facts['distribution_version'] | version_compare('20.04', '>=') else 'openjdk-8-jdk' }}"
+        tomcat_major_version: "9"
+        tomcat_version: "9.0.84"
+        user: "tomcat"
+        group: "tomcat"
+        homedir: "/opt/tomcat"
+        shell: "/bin/false"
       ansible.builtin.apt:
         name: "{{ java_package }}"
         update_cache: yes
