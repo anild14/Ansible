@@ -14,5 +14,49 @@
         name: "{{ java_package }}"
         update_cache: yes
         state: present
-    
-      
+    - name: download tomcat
+      ansible.builtin.get_url:
+        url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz"
+        dest: /tmp/apache-tomcat-9.0.65.tar.gz    
+    - name: extract tomcat
+      ansible.builtin.unarchive:
+        src: /tmp/apache-tomcat-9.0.65.tar.gz
+        dest: /opt/
+        remote_src: yes
+    - name: change permissions
+      ansible.builtin.file:
+        path: /opt/apache-tomcat-9.0.65
+        state: directory
+        recurse: yes
+        owner: tomcat
+        group: tomcat
+        mode: '0755'
+    - name: create tomcat service file
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/tomcat.service
+        content: |
+          [Unit]
+          Description=Apache Tomcat Web Application Container
+          After=network.target
+
+          [Service]
+          Type=forking
+
+          Environment=JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
+          Environment=CATALINA_PID=/opt/apache-tomcat-9.0.65/temp/tomcat.pid
+          Environment=CATALINA_HOME=/opt/apache-tomcat-9.0.65
+          Environment=CATALINA_BASE=/opt/apache-tomcat-9.0.65
+          Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
+          Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
+
+          ExecStart=/opt/apache-tomcat-9.0.65/bin/startup.sh
+          ExecStop=/opt/apache-tomcat-9.0.65/bin/shutdown.sh
+
+          User=tomcat
+          Group=tomcat
+          UMask=0007
+          RestartSec=10
+          Restart=always
+
+          [Install]
+          WantedBy=multi-user.target
