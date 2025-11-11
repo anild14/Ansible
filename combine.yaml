@@ -9,7 +9,10 @@
       ansible.builtin.fail:
         msg: "This playbook is designed to work on ubuntu and redhat only"
       when: ansible_facts['distribution'] != "Ubuntu" and ansible_facts['distribution'] != "RedHat"
-    - name: install apache server
+    - name: install httpd server
+      vars:
+        package_name: "{{ 'apache2' if ansible_facts['distribution'] == 'Ubuntu' else 'httpd' }}"
+        php_packages: "{{ ['php', 'libapache2-mod-php', 'php-mysql'] if ansible_facts['distribution'] == 'Ubuntu' else ['php', 'php-mysql'] }}"
       ansible.builtin.package :
         name: "{{ package_name }}"
         state: present
