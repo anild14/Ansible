@@ -1,9 +1,7 @@
 ---
 - name: install tomcat
-  hosts: all
+  hosts: tomcat
   become: yes
-  vars:
-    java_package: openjdk-11-jdk
   tasks:
     - name: check if the playbook is being executed on supported os
       ansible.builtin.fail:
@@ -14,49 +12,54 @@
         name: "{{ java_package }}"
         update_cache: yes
         state: present
+    - name: create group
+      ansible.builtin.group:
+        name: "{{ group }}"
+        state: present
+    - name: create user
+      ansible.builtin.user:
+        name: "{{ user }}"
+        create_home: yes
+        home: "{{ homedir }}"
+        shell: "{{ shell }}"
+        group: "{{ group }}"
     - name: download tomcat
       ansible.builtin.get_url:
-        url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz"
-        dest: /tmp/apache-tomcat-9.0.65.tar.gz    
+        url: "https://www-eu.apache.org/dist/tomcat/tomcat-{{ tomcat_major_version }}/v{{ tomcat_version }}/bin/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        dest: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
     - name: extract tomcat
       ansible.builtin.unarchive:
-        src: /tmp/apache-tomcat-9.0.65.tar.gz
-        dest: /opt/
+        src: "/tmp/apache-tomcat-{{ tomcat_version }}.tar.gz"
+        dest: "{{ homedir }}"
         remote_src: yes
-    - name: change permissions
+    - name: create a symlink
       ansible.builtin.file:
-        path: /opt/apache-tomcat-9.0.65
+        src: "{{ homedir }}/apache-tomcat-{{ tomcat_version }}"
+        dest: "{{ homedir }}/latest"
+        state: link
+    - name: Recursively change ownership of a directory
+      ansible.builtin.file:
+        path: "{{ homedir }}"
         state: directory
         recurse: yes
-        owner: tomcat
-        group: tomcat
-        mode: '0755'
-    - name: create tomcat service file
-      ansible.builtin.copy:
+        owner: "{{ user }}"
+        group: "{{ group }}"
+    - name: Add execute permissions for shell scripts
+      ansible.builtin.shell:
+        cmd: "chmod +x {{ homedir }}/latest/bin/*.sh"
+    - name: copy the service file
+      ansible.builtin.template:
+        src: tomcat.service.j2
         dest: /etc/systemd/system/tomcat.service
-        content: |
-          [Unit]
-          Description=Apache Tomcat Web Application Container
-          After=network.target
-
-          [Service]
-          Type=forking
-
-          Environment=JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-          Environment=CATALINA_PID=/opt/apache-tomcat-9.0.65/temp/tomcat.pid
-          Environment=CATALINA_HOME=/opt/apache-tomcat-9.0.65
-          Environment=CATALINA_BASE=/opt/apache-tomcat-9.0.65
-          Environment='CATALINA_OPTS=-Xms512M -Xmx1024M -server -XX:+UseParallelGC'
-          Environment='JAVA_OPTS=-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom'
-
-          ExecStart=/opt/apache-tomcat-9.0.65/bin/startup.sh
-          ExecStop=/opt/apache-tomcat-9.0.65/bin/shutdown.sh
-
-          User=tomcat
-          Group=tomcat
-          UMask=0007
-          RestartSec=10
-          Restart=always
-
-          [Install]
-          WantedBy=multi-user.target
+      notify:
+        - reload daemon
+    - name: ensure tomcat is enable and runing
+      ansible.builtin.systemd:
+        name: tomcat
+        enabled: yes
+        state: started
+  handlers:
+    - name: reload daemon
+      ansible.builtin.systemd:
+        daemon_reload: yes
+      
