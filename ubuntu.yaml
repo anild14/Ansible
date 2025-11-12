@@ -14,6 +14,45 @@
     - name: Remove unnecessary packages
       apt:
         autoremove: yes
+        purge: yes
+    - name: Clean up apt cache
+      apt:
+        autoclean: yes
+    - name: Reboot the system if a kernel update was installed
+
+      reboot:
+        msg: "Rebooting after kernel update"
+        connect_timeout: 5
+        reboot_timeout: 600
+        pre_reboot_delay: 0
+        post_reboot_delay: 30
+      when: ansible_facts.packages['linux-image-generic'] is defined and
+            ansible_facts.packages['linux-image-generic'][0].version != ansible_facts.kernel.version
+
+- name: Ensure unattended-upgrades is installed and configured
+  hosts: all
+  become: yes
+  tasks:
+
+    - name: Install unattended-upgrades package
+      apt:
+        name: unattended-upgrades
+        state: present
+
+    - name: Enable automatic updates
+      copy:
+        dest: /etc/apt/apt.conf.d/20auto-upgrades
+        content: |
+          APT::Periodic::Update-Package-Lists "1";
+          APT::Periodic::Unattended-Upgrade "1";
+          APT::Periodic::AutocleanInterval "7";
+          APT::Periodic::Download-Upgradeable-Packages "1";
+      notify: Restart unattended-upgrades
+  handlers:
+    - name: Restart unattended-upgrades
+      service:
+        name: unattended-upgrades
+        state: restarted
 
 
 
