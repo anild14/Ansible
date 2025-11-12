@@ -2,6 +2,9 @@
 - name: install mysql server on ubuntu
   hosts: all
   become: yes
+  gather_facts: yes
+  roles:
+    - mysql_role
   tasks:
     - name: install mysql server package
       ansible.builtin.package:
