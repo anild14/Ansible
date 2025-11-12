@@ -3,5 +3,5 @@
   hosts: tomcat
   become: yes
   gather_facts: yes
-  role:
-    - roles: tomcat10
+  roles:
+    - role: tomcat10
