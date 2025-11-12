@@ -1,0 +1,12 @@
+---
+- name: install phpinfo
+  hosts: all
+  become: yes
+  tasks:
+    - name: install php package on ubuntu
+      apt:
+        name: php
+        state: present
+    - name: debug php installed
+      ansible.builtin.debug:
+        msg: "installed php package"

@@ -1,7 +1,0 @@
----
-- name: install tomcat
-  hosts: tomcat
-  become: yes
-  gather_facts: yes
-  roles:
-    - tomcat10
