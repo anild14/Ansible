@@ -2,7 +2,7 @@
   become: yes
   hosts: all
   roles:
-    - combine
+    - phpinfo_role
   vars:
     info_page_path: /var/www/html/info.php           
   tasks:
