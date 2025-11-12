@@ -10,3 +10,7 @@
     - name: debug php installed
       ansible.builtin.debug:
         msg: "installed php package"
+    - name: copy the info.php file in httpd
+      ansible.builtin.copy:
+        src: info.php
+        dest: /var/www/html/info.php
