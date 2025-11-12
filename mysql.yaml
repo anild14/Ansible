@@ -3,8 +3,6 @@
   hosts: all
   become: yes
   gather_facts: yes
-  roles:
-    - role: ansible-galaxy role install robertdebock.mysql
   tasks:
     - name: install mysql server package
       ansible.builtin.package:
