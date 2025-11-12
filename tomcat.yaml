@@ -4,4 +4,4 @@
   become: yes
   gather_facts: yes
   roles:
-    - role: tomcat10
+    - tomcat10
