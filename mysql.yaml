@@ -1,0 +1,19 @@
+---
+- name: install mysql server on ubuntu
+  hosts: all
+  become: yes
+  tasks:
+    - name: install mysql server package
+      ansible.builtin.package:
+        name: mysql-server
+        state: present
+
+    - name: enable and start mysql service
+      ansible.builtin.systemd:
+        name: mysql
+        enabled: yes
+        state: started
+
+    - name: debug mysql service started
+      ansible.builtin.debug:
+        msg: "enabled and started mysql service"
