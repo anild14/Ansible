@@ -1,78 +1,21 @@
 ---
-- name: install tomcat
+- name: Update and Upgrade Ubuntu System
   hosts: all
   become: yes
-  gather_facts: yes
-  roles:
-    - role: geerlingguy.tomcat
-      vars:
-        tomcat_version: "9"
-        tomcat_service_enabled: true
-        tomcat_service_state: started
-        tomcat_port: 8080
-        tomcat_shutdown_port: 8005
-        tomcat_ajp_port: 8009
-        tomcat_redirect_port: 8443
-        tomcat_user: "tomcat"
-        tomcat_group: "tomcat"
-        tomcat_install_dir: "/opt/tomcat"
-        tomcat_home: "/opt/tomcat/apache-tomcat-9.0.65"
-        tomcat_base: "/opt/tomcat/apache-tomcat-9.0.65"
-        tomcat_java_opts: "-Xms512M -Xmx1024M -server -XX:+UseParallelGC"
-        tomcat_memory_opts: "-Xms512M -Xmx1024M"  
-        tomcat_extra_opts: "-Djava.awt.headless=true -Djava.security.egd=file:/dev/./urandom"
-        tomcat_use_security_manager: false
-        tomcat_manage_firewall: true
-        tomcat_firewall_service: "tomcat"
-        tomcat_download_url: "https://archive.apache.org/dist/tomcat/tomcat-9/v9.0.65/bin/apache-tomcat-9.0.65.tar.gz"
-        tomcat_download_checksum: "sha512:4c8e2f3b5f4e6d8e7f8a9b0c1d2e3f4a5b6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8g9h0i1j2k3l4m5n6o7"
-        tomcat_setenv_template: "templates/tomcat_setenv.sh.j2"
-        tomcat_users_template: "templates/tomcat_users.xml.j2"
-        tomcat_contexts:
-          - src: "templates/tomcat_context.xml.j2"
-            dest: "conf/context.xml"
-        tomcat_server_template: "templates/tomcat_server.xml.j2"
-        tomcat_webapps:
-          - name: "manager"
-            state: "present"
-          - name: "host-manager"
-            state: "present"
-        tomcat_admin_username: "admin"
-        tomcat_admin_password: "admin_password"
-        tomcat_manager_username: "manager"
-        tomcat_manager_password: "manager_password"
-        tomcat_host_manager_username: "host_manager"
-        tomcat_host_manager_password: "host_manager_password"
-        tomcat_ssl_enabled: false
-        tomcat_ssl_keystore_file: "/opt/tomcat/keystore.jks"
-        tomcat_ssl_keystore_password: "changeit"
-        tomcat_ssl_key_alias: "tomcat"
-        tomcat_ssl_key_password: "changeit"
-        tomcat_logging_properties: "templates/logging.properties.j2"
-        tomcat_access_log_pattern: "%h %l %u %t &quot;%r&quot; %s %b"
-        tomcat_access_log_enabled: true
-        tomcat_access_log_directory: "logs"
-        tomcat_access_log_prefix: "access_log"
-        tomcat_access_log_suffix: ".txt"
-        tomcat_access_log_rotatable: true
-        tomcat_access_log_file_date_format: "yyyy-MM-dd"
-        tomcat_access_log_condition_if: ""
-        tomcat_access_log_condition_unless: ""      
-        tomcat_firewall_ports:
-          - 8080
-          - 8443
-        tomcat_additional_packages:
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
 
-          - "libtcnative-1"
-          - "openssl-devel"
+    - name: Upgrade all packages to the latest version
+      apt:
+        upgrade: dist
 
-- name: Converge
-  hosts: all
-  become: yes
-  gather_facts: yes
-  roles:
-    - role: geerlingguy.firewall
-      vars:
-        firewall_allowed_tcp_ports:
-          - 8080
-          - 8443
+    - name: Remove unnecessary packages
+      apt:
+        autoremove: yes
+
+
+
+
+
