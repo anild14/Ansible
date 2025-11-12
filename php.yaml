@@ -2,5 +2,17 @@
   become: yes
   hosts: all
   roles:
-    - phpinfo
+    - geerlingguy.php
+  tasks:
+    - name: ensure phpinfo file is present
+      ansible.builtin.copy:
+        dest: /var/www/html/info.php
+        content: "<?php phpinfo(); ?>"
+      notify:
+        - restart apache
+  handlers:
+    - name: restart apache
+      ansible.builtin.systemd:
+        name: "{{ 'apache2' if ansible_facts['distribution'] == 'Ubuntu' else 'httpd' }}"
+        state: restarted
 
