@@ -4,3 +4,18 @@
   hosts: all
   roles:
     - tomcat1o
+  vars:
+    group: tomcat
+    user: tomcat
+    homedir: /opt/tomcat
+    shell: /bin/false
+    tomcat_major_version: 9
+    tomcat_version: 9.0.78
+  handlers:
+    - name: Recursively change ownership of a directory
+      ansible.builtin.command: chown -R {{ user }}:{{ group }} {{ homedir }}/apache-tomcat-{{ tomcat_version }}
+    - name: Add execute permissions for shell scripts
+      ansible.builtin.command: chmod +x {{ homedir }}/apache-tomcat-{{ tomcat_version }}/bin/*.sh
+    - name: reload daemon
+      ansible.builtin.systemd:
+        daemon_reload: yes
