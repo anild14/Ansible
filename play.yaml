@@ -1,30 +1,40 @@
 ---
-- name: install lamp server on ubuntu
+- name: install lamp on ubuntu
   hosts: all
   become: yes
+  gather_facts: yes
   tasks:
-    - name: update packages and install apache
-      ansible.builtin.apt:
+    - name: install apache2 package
+      ansible.builtin.package:
         name: apache2
-        update_cache: yes
         state: present
-    - name: install php packages
-      ansible.builtin.apt:
-        name:
-          - php
-          - libapache2-mod-php
-          - php-mysql
+
+    - name: enable and start apache2 service
+      ansible.builtin.systemd:
+        name: apache2
+        enabled: yes
+        state: started
+
+    - name: debug apache2 service started
+      ansible.builtin.debug:
+        msg: "enabled and started apache2 service"
+
+    - name: install php package
+      ansible.builtin.package:
+        name: php
         state: present
-      notify:
-        - restart apache2
-    - name: copy the info.php page
-      ansible.builtin.copy:
-        src: info.php
-        dest: /var/www/html/info.php
-      notify:
-        - restart apache2
-  handlers:
-    - name: restart apache2
+
+    - name: debug php package installed
+      ansible.builtin.debug:
+        msg: "installed php package"
+    - name: install libapache2-mod-php package
+      ansible.builtin.package:
+        name: libapache2-mod-php
+        state: present
+    - name: debug libapache2-mod-php package installed
+      ansible.builtin.debug:
+        msg: "installed libapache2-mod-php package"
+    - name: restart apache2 to load php module
       ansible.builtin.systemd:
         name: apache2
         state: restarted
